@@ -23,7 +23,7 @@
 int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt, EVP_CIPHER_CTX *e_ctx,
              EVP_CIPHER_CTX *d_ctx)
 {
-  int i, nrounds = 5;
+  int i, nrounds = 1;
   // unsigned char key[32], iv[32];
 	unsigned char key[EVP_MAX_KEY_LENGTH],iv[EVP_MAX_IV_LENGTH];
 	// unsigned char salt[PKCS5_SALT_LEN];
@@ -33,8 +33,8 @@ int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt, EVP
    * nrounds is the number of times the we hash the material. More rounds are more secure but
    * slower.
    */
-	const EVP_CIPHER *cipher=NULL,*c;
-	cipher=EVP_get_cipherbyname("enc");
+  OPENSSL_add_all_algorithms_noconf();
+	const EVP_CIPHER *cipher=NULL;
 	cipher=EVP_get_cipherbyname("aes-256-cbc");
   assert (NULL != cipher);
   // i = EVP_BytesToKey(EVP_aes_256_cbc(), EVP_md5(), salt, key_data, key_data_len, nrounds, key, iv);
@@ -43,10 +43,15 @@ int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt, EVP
     printf("Key size is %d bits - should be 256 bits\n", i);
     return -1;
   }
+  // if (str == strbuf)
+  //   OPENSSL_cleanse(str,SIZE);
+  // else
+  //   OPENSSL_cleanse(str,strlen(str));
+
 
   EVP_CIPHER_CTX_init(e_ctx);
-  // EVP_EncryptInit_ex(e_ctx, EVP_aes_256_cbc(), NULL, key, iv);
-  EVP_EncryptInit_ex(e_ctx, EVP_aes_256_cbc(), NULL, NULL, NULL);
+  // EVP_EncryptInit_ex(e_ctx, cipher, NULL, key, iv);
+  EVP_EncryptInit_ex(e_ctx, cipher, NULL, NULL, NULL);
   EVP_EncryptInit_ex(e_ctx, NULL, NULL, key, iv);
 
 		// if (!EVP_CipherInit_ex(ctx, cipher, NULL, NULL, NULL, enc))
@@ -83,7 +88,7 @@ unsigned char *aes_encrypt(EVP_CIPHER_CTX *e, unsigned char *plaintext, int *len
   unsigned char *ciphertext = (unsigned char *)malloc(c_len);
 
   /* allows reusing of 'e' for multiple encryption cycles */
-  // EVP_EncryptInit_ex(e, NULL, NULL, NULL, NULL);
+  EVP_EncryptInit_ex(e, NULL, NULL, NULL, NULL);
 
   /* update ciphertext, c_len is filled with the length of ciphertext generated,
     *len is the size of plaintext in bytes */
@@ -124,14 +129,14 @@ int main(int argc, char **argv)
      integers on the stack as 64 bits of contigous salt material -
      ofcourse this only works if sizeof(int) >= 4 */
   // unsigned int salt[] = {12345, 54321};
-  unsigned char salt[9] = "\355\352foY\277\273\005";
-  salt[8] = '\0';
+  unsigned char salt[8] = "\355\352foY\277\273";
+  salt[7] = '\0';
   unsigned char *key_data;
   int key_data_len, i;
   // char *input[] = {"a", "abcd", "this is a test", "this is a bigger test",
   //                  "\nWho are you ?\nI am the 'Doctor'.\n'Doctor' who ?\nPrecisely!",
   //                  NULL};
-  char *input[] = {"abcd",                   NULL};
+  char *input[] = {"abcd\n",                   NULL};
 
 
   /* the key_data is read from the argument list */
