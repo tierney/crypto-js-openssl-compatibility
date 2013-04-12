@@ -11,4 +11,31 @@ var passphrase = CryptoJS.enc.Hex.stringify(key);
 var encrypted = CryptoJS.AES.encrypt("Message", passphrase);
 print (encrypted);
 print (String(encrypted).length);
-SerializableCipher.encrypt.call(this, cipher, message, derivedParams.key, cfg);
+
+function hex2a(hex) {
+    var str = '';
+    for (var i = 0; i < hex.length; i += 2)
+        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    return str;
+}
+var openSSLEncrypted = "cBctJ8SksVgEDakMgsuXKA=="
+var openSSLEncrypted = "U2FsdGVkX19lZFJa0tLh5jZfr/n3Fuk7pcRkV8oV7BU=";
+// var openSSLEncrypted = "iABowfppI8t5fkASASgoFogAaMH6aSPLeX5AEgEoKBY=";
+// var openSSLEncrypted = "Edw/kVwYlqRPrQOSM2nQIBHcP5FcGJakT60DkjNp0CAK";
+var openSSLEncrypted = "rj7OiHGpEUIcQ81+rJAkwQ==";
+var decrypted = CryptoJS.AES.decrypt(openSSLEncrypted, "Secret Passphrase");
+print ("Decrypted " + decrypted)
+print ("          " + hex2a(String(decrypted)))
+
+var encrypted = CryptoJS.AES.encrypt("Message", "Secret Passphrase");
+print (encrypted)
+print (encrypted.key)
+print (encrypted.iv)
+print (encrypted.salt)
+print (encrypted.ciphertext)
+var encrypted = CryptoJS.AES.encrypt("Message", "Secret Passphrase");
+print (encrypted)
+print (encrypted.key)
+print (encrypted.iv)
+print (encrypted.salt)
+print (encrypted.ciphertext)

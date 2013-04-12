@@ -12,7 +12,7 @@ ${V8} \
     /home/tierney/repos/crypto-js/src/hmac.js \
     /home/tierney/repos/crypto-js/src/pbkdf2.js \
     /home/tierney/repos/crypto-js/src/evpkdf.js \
+    /home/tierney/repos/crypto-js/src/enc-base64.js \
     /home/tierney/repos/crypto-js/src/cipher-core.js \
     /home/tierney/repos/crypto-js/src/aes.js \
-    /home/tierney/repos/sjcl/sjcl.js \
     compat.js
