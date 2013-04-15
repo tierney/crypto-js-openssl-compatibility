@@ -1,0 +1,16 @@
+There is an implementation of PBKDF2 in OpenSSL, declared in openssl/evp.h:
+
+int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
+                           unsigned char *salt, int saltlen, int iter,
+                           int keylen, unsigned char *out);
+When you are generating a new key you should use RAND_bytes() from openssl/rand.h to create the salt.
+
+
+var salt = CryptoJS.lib.WordArray.random(128 / 8);
+var key = CryptoJS.PBKDF2("pin", salt, { keySize: 128 / 32, iterations: 4 });
+var iv = CryptoJS.lib.WordArray.random(128 / 8);
+var cprEncrypt = CryptoJS.AES.encrypt("1234567890", key, { 'iv': iv });
+var decrypt = CryptoJS.AES.decrypt(cprEncrypt, key, { 'iv': iv });
+var ddd = decrypt.toString(CryptoJS.enc.Utf8);
+
+var salt = CryptoJS.enc.Hex.parse( localStorage.getItem("salt") );
