@@ -49,10 +49,11 @@ int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt, EVP
   //   OPENSSL_cleanse(str,strlen(str));
 
 
-  EVP_CIPHER_CTX_init(e_ctx);
-  // EVP_EncryptInit_ex(e_ctx, cipher, NULL, key, iv);
-  EVP_EncryptInit_ex(e_ctx, cipher, NULL, NULL, NULL);
-  EVP_EncryptInit_ex(e_ctx, NULL, NULL, key, iv);
+  // EVP_CIPHER_CTX_init(e_ctx);
+
+  EVP_EncryptInit_ex(e_ctx, cipher, NULL, key, iv);
+  // EVP_EncryptInit_ex(e_ctx, cipher, NULL, NULL, NULL);
+  // EVP_EncryptInit_ex(e_ctx, NULL, NULL, key, iv);
 
 		// if (!EVP_CipherInit_ex(ctx, cipher, NULL, NULL, NULL, enc))
 		// 	{
@@ -68,7 +69,7 @@ int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt, EVP
 		// if (!EVP_CipherInit_ex(ctx, NULL, NULL, key, iv, enc))
 
 
-  EVP_CIPHER_CTX_init(d_ctx);
+  // EVP_CIPHER_CTX_init(d_ctx);
   EVP_DecryptInit_ex(d_ctx, EVP_aes_256_cbc(), NULL, key, iv);
 
   return 0;
@@ -88,14 +89,14 @@ unsigned char *aes_encrypt(EVP_CIPHER_CTX *e, unsigned char *plaintext, int *len
   unsigned char *ciphertext = (unsigned char *)malloc(c_len);
 
   /* allows reusing of 'e' for multiple encryption cycles */
-  EVP_EncryptInit_ex(e, NULL, NULL, NULL, NULL);
+  //EVP_EncryptInit_ex(e, NULL, NULL, NULL, NULL);
 
   /* update ciphertext, c_len is filled with the length of ciphertext generated,
     *len is the size of plaintext in bytes */
   EVP_EncryptUpdate(e, ciphertext, &c_len, plaintext, *len);
 
   /* update ciphertext with the final remaining bytes */
-  EVP_EncryptFinal_ex(e, ciphertext+c_len, &f_len);
+  EVP_CipherFinal_ex(e, ciphertext+c_len, &f_len);
 
   *len = c_len + f_len;
   return ciphertext;
@@ -122,7 +123,11 @@ int main(int argc, char **argv)
 {
   /* "opaque" encryption, decryption ctx structures that libcrypto uses to record
      status of enc/dec operations */
-  EVP_CIPHER_CTX en, de;
+
+  // TODO(tierney): Use the built-in _new() and _cleanup() functions.
+  //
+  EVP_CIPHER_CTX* en = EVP_CIPHER_CTX_new();
+  EVP_CIPHER_CTX* de = EVP_CIPHER_CTX_new();
 
   /* 8 bytes to salt the key_data during key generation. This is an example of
      compiled in salt. We just read the bit pattern created by these two 4 byte
@@ -136,7 +141,7 @@ int main(int argc, char **argv)
   // char *input[] = {"a", "abcd", "this is a test", "this is a bigger test",
   //                  "\nWho are you ?\nI am the 'Doctor'.\n'Doctor' who ?\nPrecisely!",
   //                  NULL};
-  char *input[] = {"abcd\n",                   NULL};
+  char *input[] = {"01234567 \n01234567 \n abcdef", NULL};
 
 
   /* the key_data is read from the argument list */
@@ -144,7 +149,7 @@ int main(int argc, char **argv)
   key_data_len = strlen(argv[1]);
 
   /* gen key and iv. init the cipher ctx object */
-  if (aes_init(key_data, key_data_len, (unsigned char *)&salt, &en, &de)) {
+  if (aes_init(key_data, key_data_len, (unsigned char *)&salt, en, de)) {
     printf("Couldn't initialize AES cipher\n");
     return -1;
   }
@@ -161,18 +166,21 @@ int main(int argc, char **argv)
        we end up with a legal C string */
     olen = len = strlen(input[i])+1;
 
-    ciphertext = aes_encrypt(&en, (unsigned char *)input[i], &len);
+    ciphertext = aes_encrypt(en, (unsigned char *)input[i], &len);
     std::cout << len << std::endl;
     for (int j = 0; j < len; j++) {
       std::cout << ciphertext[j];
     }
     std::cout << std::endl;
     std::cout << "Cipher: " << ciphertext << std::endl;
-    std::string to_encode = reinterpret_cast<char *>(ciphertext);
+
+    std::string to_encode = "Salted__";
+    to_encode.append(reinterpret_cast<char *>(salt), 8);
+    to_encode.append(reinterpret_cast<char *>(ciphertext));
     std::cout << "Cipher: " << base64_encode(to_encode) << std::endl;
     std::cout << "Cipher: " << (to_encode) << std::endl;
 
-    plaintext = (char *)aes_decrypt(&de, ciphertext, &len);
+    plaintext = (char *)aes_decrypt(de, ciphertext, &len);
 
     if (strncmp(plaintext, input[i], olen))
       printf("FAIL: enc/dec failed for \"%s\"\n", input[i]);
@@ -183,8 +191,8 @@ int main(int argc, char **argv)
     free(plaintext);
   }
 
-  EVP_CIPHER_CTX_cleanup(&en);
-  EVP_CIPHER_CTX_cleanup(&de);
+  EVP_CIPHER_CTX_free(en);
+  EVP_CIPHER_CTX_free(de);
 
   return 0;
 }
