@@ -1,11 +1,3 @@
-/**
-  AES encryption/decryption demo program using OpenSSL EVP apis
-  gcc -Wall openssl_aes.c -lcrypto
-
-  this is public domain code.
-
-  Saju Pillai (saju.pillai@gmail.com)
-**/
 
 #include <cstdio>
 #include <iostream>
@@ -27,7 +19,7 @@ int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt, EVP
   // unsigned char key[32], iv[32];
 	unsigned char key[EVP_MAX_KEY_LENGTH],iv[EVP_MAX_IV_LENGTH];
 	// unsigned char salt[PKCS5_SALT_LEN];
-  std::cout << "PKCS5_SALT_LEN " << PKCS5_SALT_LEN << std::endl;
+  // std::cout << "PKCS5_SALT_LEN " << PKCS5_SALT_LEN << std::endl;
   /*
    * Gen key & IV for AES 256 CBC mode. A SHA1 digest is used to hash the supplied key material.
    * nrounds is the number of times the we hash the material. More rounds are more secure but
@@ -43,30 +35,12 @@ int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt, EVP
     printf("Key size is %d bits - should be 256 bits\n", i);
     return -1;
   }
-  // if (str == strbuf)
-  //   OPENSSL_cleanse(str,SIZE);
-  // else
-  //   OPENSSL_cleanse(str,strlen(str));
-
 
   // EVP_CIPHER_CTX_init(e_ctx);
 
   EVP_EncryptInit_ex(e_ctx, cipher, NULL, key, iv);
   // EVP_EncryptInit_ex(e_ctx, cipher, NULL, NULL, NULL);
   // EVP_EncryptInit_ex(e_ctx, NULL, NULL, key, iv);
-
-		// if (!EVP_CipherInit_ex(ctx, cipher, NULL, NULL, NULL, enc))
-		// 	{
-		// 	BIO_printf(bio_err, "Error setting cipher %s\n",
-		// 		EVP_CIPHER_name(cipher));
-		// 	ERR_print_errors(bio_err);
-		// 	goto end;
-		// 	}
-
-		// if (nopad)
-		// 	EVP_CIPHER_CTX_set_padding(ctx, 0);
-
-		// if (!EVP_CipherInit_ex(ctx, NULL, NULL, key, iv, enc))
 
 
   // EVP_CIPHER_CTX_init(d_ctx);
@@ -84,8 +58,6 @@ unsigned char *aes_encrypt(EVP_CIPHER_CTX *e, unsigned char *plaintext, int *len
   /* max ciphertext len for a n bytes of plaintext is n + AES_BLOCK_SIZE -1 bytes */
   int c_len = *len + AES_BLOCK_SIZE, f_len = 0;
   c_len = 32;
-  std::cout << "c_len: " << c_len << std::endl;
-  std::cout << "AES_BLOCK_SIZE: " << AES_BLOCK_SIZE << std::endl;
   unsigned char *ciphertext = (unsigned char *)malloc(c_len);
 
   /* allows reusing of 'e' for multiple encryption cycles */
@@ -167,25 +139,20 @@ int main(int argc, char **argv)
     olen = len = strlen(input[i])+1;
 
     ciphertext = aes_encrypt(en, (unsigned char *)input[i], &len);
-    std::cout << len << std::endl;
-    for (int j = 0; j < len; j++) {
-      std::cout << ciphertext[j];
-    }
-    std::cout << std::endl;
-    std::cout << "Cipher: " << ciphertext << std::endl;
+    // std::cout << "Cipher: " << ciphertext << std::endl;
 
     std::string to_encode = "Salted__";
     to_encode.append(reinterpret_cast<char *>(salt), 8);
     to_encode.append(reinterpret_cast<char *>(ciphertext));
-    std::cout << "Cipher: " << base64_encode(to_encode) << std::endl;
-    std::cout << "Cipher: " << (to_encode) << std::endl;
+    std::cout << base64_encode(to_encode) << std::endl;
+    // std::cout << "Cipher: " << (to_encode) << std::endl;
 
     plaintext = (char *)aes_decrypt(de, ciphertext, &len);
 
     if (strncmp(plaintext, input[i], olen))
       printf("FAIL: enc/dec failed for \"%s\"\n", input[i]);
-    else
-      printf("OK: enc/dec ok for \"%s\"\n", plaintext);
+    // else
+    //   printf("OK: enc/dec ok for \"%s\"\n", plaintext);
 
     free(ciphertext);
     free(plaintext);
