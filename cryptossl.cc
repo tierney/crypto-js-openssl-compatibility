@@ -65,7 +65,7 @@ int aes_init(unsigned char *key_data, int key_data_len,
              EVP_CIPHER_CTX *e_ctx,
              EVP_CIPHER_CTX *d_ctx)
 {
-  int i, nrounds = 2;
+  int i, nrounds = 1000;
   // unsigned char key[32], iv[32];
 	unsigned char key[EVP_MAX_KEY_LENGTH],iv[EVP_MAX_IV_LENGTH];
 	// unsigned char salt[PKCS5_SALT_LEN];
