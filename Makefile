@@ -5,6 +5,8 @@ all: key
 	clang++ -o main -g -O0 -Wall -std=c++11 main.cc -lcrypto base64.o -ldl
 	# clang++ -I../v8/include v8.cc -o hello_world ../v8/out/x64.release/libv8_{base,snapshot}.a -lpthread -L. -lfile_util.o
 
+crypto:
+	clang++ -o crypto.o -Wall -c crypto.cc -I.
 key:
 	clang++ -o key.o -Wall -c key.cc
 
