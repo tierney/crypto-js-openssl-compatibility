@@ -6,13 +6,18 @@
 #include <openssl/evp.h>
 #include <openssl/aes.h>
 #include <openssl/md5.h>
+#include <openssl/rand.h>
 #include <cassert>
 #include "base64.h"
+
+#define KEK_KEY_LEN  20
+
 /**
  * Create an 256 bit key and IV using the supplied key_data. salt can be added for taste.
  * Fills in the encryption and decryption ctx objects and returns 0 on success
  **/
-int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt, EVP_CIPHER_CTX *e_ctx,
+int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt,
+             EVP_CIPHER_CTX *e_ctx,
              EVP_CIPHER_CTX *d_ctx)
 {
   int i, nrounds = 1;
@@ -20,12 +25,19 @@ int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt, EVP
 	unsigned char key[EVP_MAX_KEY_LENGTH],iv[EVP_MAX_IV_LENGTH];
 	// unsigned char salt[PKCS5_SALT_LEN];
   // std::cout << "PKCS5_SALT_LEN " << PKCS5_SALT_LEN << std::endl;
+
   /*
    * Gen key & IV for AES 256 CBC mode. A SHA1 digest is used to hash the supplied key material.
    * nrounds is the number of times the we hash the material. More rounds are more secure but
    * slower.
    */
-	const EVP_CIPHER *cipher= EVP_aes_256_cbc();
+  size_t keylen;
+  unsigned char *out = (unsigned char *) malloc(sizeof(unsigned char) * KEK_KEY_LEN);
+  i = PKCS5_PBKDF2_HMAC_SHA1(reinterpret_cast<char *>(key_data), key_data_len, salt, sizeof(salt), 1,
+                               KEK_KEY_LEN, out);
+  std::cout << "Key " << out << " " << KEK_KEY_LEN << std::endl;
+
+  const EVP_CIPHER *cipher= EVP_aes_256_cbc();
   i = EVP_BytesToKey(cipher, EVP_sha1(), salt, key_data, key_data_len, nrounds, key, iv);
   // i = EVP_BytesToKey(cipher, EVP_md5(), salt, key_data, key_data_len, nrounds, key, iv);
   if (i != 32) {
@@ -103,7 +115,9 @@ int main(int argc, char **argv)
      integers on the stack as 64 bits of contigous salt material -
      ofcourse this only works if sizeof(int) >= 4 */
   // unsigned int salt[] = {12345, 54321};
-  unsigned char salt[8] = "\355\352foY\277\273";
+  // unsigned char salt[8] = "\355\352foY\277\273";
+  int salt[] = {-1149515093, -486790477};
+
   salt[7] = '\0';
   unsigned char *key_data;
   int key_data_len, i;
@@ -130,11 +144,11 @@ int main(int argc, char **argv)
     unsigned char *ciphertext;
     int olen, len;
 
-    /* The enc/dec functions deal with binary data and not C strings. strlen() will
-       return length of the string without counting the '\0' string marker. We always
-       pass in the marker byte to the encrypt/decrypt functions so that after decryption
-       we end up with a legal C string */
-    olen = len = strlen(input[i])+1;
+    /* The enc/dec functions deal with binary data and not C strings. strlen()
+       will return length of the string without counting the '\0' string
+       marker. We always pass in the marker byte to the encrypt/decrypt
+       functions so that after decryption we end up with a legal C string */
+       olen = len = strlen(input[i])+1;
 
     ciphertext = aes_encrypt(en, (unsigned char *)input[i], &len);
     // std::cout << "Cipher: " << ciphertext << std::endl;
