@@ -25,12 +25,9 @@ int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt, EVP
    * nrounds is the number of times the we hash the material. More rounds are more secure but
    * slower.
    */
-  OPENSSL_add_all_algorithms_noconf();
-	const EVP_CIPHER *cipher=NULL;
-	cipher=EVP_get_cipherbyname("aes-256-cbc");
-  assert (NULL != cipher);
-  // i = EVP_BytesToKey(EVP_aes_256_cbc(), EVP_md5(), salt, key_data, key_data_len, nrounds, key, iv);
-  i = EVP_BytesToKey(cipher, EVP_md5(), salt, key_data, key_data_len, nrounds, key, iv);
+	const EVP_CIPHER *cipher= EVP_aes_256_cbc();
+  i = EVP_BytesToKey(cipher, EVP_sha1(), salt, key_data, key_data_len, nrounds, key, iv);
+  // i = EVP_BytesToKey(cipher, EVP_md5(), salt, key_data, key_data_len, nrounds, key, iv);
   if (i != 32) {
     printf("Key size is %d bits - should be 256 bits\n", i);
     return -1;
@@ -113,7 +110,8 @@ int main(int argc, char **argv)
   // char *input[] = {"a", "abcd", "this is a test", "this is a bigger test",
   //                  "\nWho are you ?\nI am the 'Doctor'.\n'Doctor' who ?\nPrecisely!",
   //                  NULL};
-  char *input[] = {"01234567 \n01234567 \n abcdef", NULL};
+  // char *input[] = {"01234567 \n01234567 \n abcdef", NULL};
+  char *input[] = {"abcd\n", NULL};
 
 
   /* the key_data is read from the argument list */
