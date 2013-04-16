@@ -1,6 +1,7 @@
 #include "file_util.h"
 
 #include <errno.h>
+#include <stdio.h>
 
 FILE* OpenFile(const std::string& filename, const char* mode) {
   FILE* result = NULL;
