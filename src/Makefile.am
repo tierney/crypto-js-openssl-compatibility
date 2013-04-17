@@ -1,6 +1,6 @@
 bin_PROGRAMS = main
 main_SOURCES = main.cc
-main_LDADD = -lcrypto -ldl
+main_LDADD = -lcrypto -ldl libbase64.a libcrypto.a
 
 noinst_LIBRARIES =
 noinst_LIBRARIES += libbase64.a

@@ -6,6 +6,7 @@ AC_INIT([CryptoJS-OpenSSL-Compatibility], [1.0], [tierney@cs.nyu.edu])
 AC_CONFIG_SRCDIR([src/base64.h])
 AC_CONFIG_HEADERS([config.h])
 
+AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE
 AC_PROG_LIBTOOL
 AC_CONFIG_MACRO_DIR([m4])
