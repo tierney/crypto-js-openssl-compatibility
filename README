@@ -1,6 +1,6 @@
 crypto-js-openssl-compatibility
 
-Author: Matt Tierney
+Author: tierney@cs.nyu.edu (Matt Tierney)
 
 Provides C++ basics for generating AES blockciphered data that is compatible
 with crypto-js.
