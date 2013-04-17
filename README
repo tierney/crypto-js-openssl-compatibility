@@ -1,0 +1,19 @@
+crypto-js-openssl-compatibility
+
+Author: Matt Tierney
+
+Provides C++ basics for generating AES blockciphered data that is compatible
+with crypto-js.
+
+Requires OpenSSL.
+
+Build instructions:
+
+    ./autogen.sh
+    ./configure
+    make
+    ./src/main "Message to encrypt"
+
+Currently, the password is hard-coded as "Secret Passphrase." (Internally, the
+OpenSSL libraries use a key derivation function based on the PKCSv1.5 standard
+with an MD5 digest.)
