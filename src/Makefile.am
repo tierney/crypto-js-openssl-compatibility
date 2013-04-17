@@ -1,3 +1,5 @@
+AM_CXXFLAGS = -fPIC -Wall -Wextra
+
 bin_PROGRAMS = main
 main_SOURCES = main.cc
 main_LDADD = -lcrypto -ldl libbase64.a libcrypto.a

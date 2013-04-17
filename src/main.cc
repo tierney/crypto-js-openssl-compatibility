@@ -10,11 +10,17 @@ int main(int argc, char** argv) {
   cryptagram::BlockCipher bc;
   std::string output;
 
-  bc.Encrypt(argv[1], "Secret Passphrase", &output);
+  if (argc != 3) {
+    std::cerr << "Expected usage:\n  " << argv[0] << " "
+              << "\"Message\" \"Password\"" << std::endl;
+    return 1;
+  }
+
+  bc.Encrypt(argv[1], argv[2],&output);
   std::cout << base64_encode(output) << std::endl;
 
   std::string final;
-  bc.Decrypt(output, "Secret Passphrase", &final);
+  bc.Decrypt(output, argv[2], &final);
 
   std::cout << final << std::endl;
   return 0;
