@@ -26,7 +26,7 @@ int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt, EVP
    * slower.
    */
 	const EVP_CIPHER *cipher= EVP_aes_256_cbc();
-  i = EVP_BytesToKey(cipher, EVP_sha1(), salt, key_data, key_data_len, nrounds, key, iv);
+  i = EVP_BytesToKey(cipher, EVP_md5(), salt, key_data, key_data_len, nrounds, key, iv);
   // i = EVP_BytesToKey(cipher, EVP_md5(), salt, key_data, key_data_len, nrounds, key, iv);
   if (i != 32) {
     printf("Key size is %d bits - should be 256 bits\n", i);
@@ -54,7 +54,6 @@ unsigned char *aes_encrypt(EVP_CIPHER_CTX *e, unsigned char *plaintext, int *len
 {
   /* max ciphertext len for a n bytes of plaintext is n + AES_BLOCK_SIZE -1 bytes */
   int c_len = *len + AES_BLOCK_SIZE, f_len = 0;
-  c_len = 32;
   unsigned char *ciphertext = (unsigned char *)malloc(c_len);
 
   /* allows reusing of 'e' for multiple encryption cycles */
