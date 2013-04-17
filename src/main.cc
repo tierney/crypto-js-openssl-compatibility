@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  bc.Encrypt(argv[1], argv[2],&output);
+  bc.Encrypt(argv[1], argv[2], &output);
   std::cout << base64_encode(output) << std::endl;
 
   std::string final;

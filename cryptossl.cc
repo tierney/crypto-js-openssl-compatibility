@@ -6,6 +6,7 @@
 #include <openssl/evp.h>
 #include <openssl/aes.h>
 #include <openssl/md5.h>
+#include <openssl/rand.h>
 #include <cassert>
 #include "base64.h"
 /**
@@ -103,6 +104,7 @@ int main(int argc, char **argv)
      ofcourse this only works if sizeof(int) >= 4 */
   // unsigned int salt[] = {12345, 54321};
   unsigned char salt[8] = "\355\352foY\277\273";
+  // RAND_bytes(salt, 8);
   salt[7] = '\0';
   unsigned char *key_data;
   int key_data_len, i;
@@ -140,7 +142,9 @@ int main(int argc, char **argv)
 
     std::string to_encode = "Salted__";
     to_encode.append(reinterpret_cast<char *>(salt), 8);
+    std::cout << reinterpret_cast<char *>(salt) << std::endl;
     to_encode.append(reinterpret_cast<char *>(ciphertext));
+
     std::cout << base64_encode(to_encode) << std::endl;
     // std::cout << "Cipher: " << (to_encode) << std::endl;
 

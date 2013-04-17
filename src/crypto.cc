@@ -11,7 +11,7 @@ BlockCipher::BlockCipher()
       : encrypt_(EVP_CIPHER_CTX_new()), decrypt_(EVP_CIPHER_CTX_new()),
         cipher_(EVP_aes_256_cbc()),
         digest_(EVP_md5()),
-        salt_(new unsigned char[PKCS5_SALT_LEN]),
+        salt_(new unsigned char[32]),
         iv_(new unsigned char[EVP_MAX_IV_LENGTH]),
         key_(new unsigned char[EVP_MAX_KEY_LENGTH]),
         nrounds_(1) {
@@ -27,12 +27,30 @@ bool BlockCipher::Encrypt(const std::string& input,
                           std::string* output) {
   assert(output != NULL);
 
-  InitEncrypt(password);
+  RAND_bytes(salt_.get(), 8);
+  salt_.get()[8] = '\0';
+
+  EVP_BytesToKey(cipher_,
+                 digest_,
+                 salt_.get(),
+                 reinterpret_cast<const unsigned char*>(password.c_str()),
+                 password.length(),
+                 nrounds_,
+                 key_.get(),
+                 iv_.get());
+
+  EVP_EncryptInit_ex(encrypt_.get(),
+                     cipher_,
+                     NULL,
+                     key_.get(),
+                     iv_.get());
 
   int c_len = input.length() + 1 + AES_BLOCK_SIZE;
   int f_len = 0;
 
   scoped_array<unsigned char> ciphertext(new unsigned char[c_len]);
+
+  EVP_EncryptInit_ex(encrypt_.get(), NULL, NULL, NULL, NULL);
 
   /* update ciphertext, c_len is filled with the length of ciphertext generated,
    *len is the size of plaintext in bytes */
@@ -84,9 +102,12 @@ bool BlockCipher::Decrypt(const std::string& input,
 }
 
 void BlockCipher::InitEncrypt(const std::string& password) {
-  RAND_bytes(salt_.get(), 8);
-  strncpy(reinterpret_cast<char *>(salt_.get()), "\355\352foY\277\273", 8);
+  RAND_bytes(salt_.get(), 7);
+  strncpy(reinterpret_cast<char *>(salt_.get()), "\355\352foY\277\273", 7);
+  salt_.get()[7] = '\0';
 
+
+  std::cout << reinterpret_cast<const unsigned char *>(password.c_str()) << std::endl;
   EVP_BytesToKey(cipher_,
                  digest_,
                  salt_.get(),
@@ -96,7 +117,6 @@ void BlockCipher::InitEncrypt(const std::string& password) {
                  key_.get(),
                  iv_.get());
 
-  EVP_CIPHER_CTX_init(encrypt_.get());
   EVP_EncryptInit_ex(encrypt_.get(),
                      cipher_,
                      NULL,
@@ -107,6 +127,7 @@ void BlockCipher::InitEncrypt(const std::string& password) {
 void BlockCipher::InitDecrypt(const std::string& input, const std::string& password) {
   // Parse the input string for iv and ciphertext.
   strncpy(reinterpret_cast<char *>(salt_.get()), input.substr(8, 8).c_str(), 8);
+  salt_.get()[8] = '\0';
 
   EVP_BytesToKey(cipher_,
                  digest_,
