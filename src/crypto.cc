@@ -85,6 +85,7 @@ bool BlockCipher::Decrypt(const std::string& input,
 
 void BlockCipher::InitEncrypt(const std::string& password) {
   RAND_bytes(salt_.get(), 8);
+  strncpy(reinterpret_cast<char *>(salt_.get()), "\355\352foY\277\273", 8);
 
   EVP_BytesToKey(cipher_,
                  digest_,

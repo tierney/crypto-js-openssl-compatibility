@@ -110,7 +110,7 @@ int main(int argc, char **argv)
   //                  "\nWho are you ?\nI am the 'Doctor'.\n'Doctor' who ?\nPrecisely!",
   //                  NULL};
   // char *input[] = {"01234567 \n01234567 \n abcdef", NULL};
-  char *input[] = {"abcd\n", NULL};
+  char *input[] = {"abcd", NULL};
 
 
   /* the key_data is read from the argument list */
