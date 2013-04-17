@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.69.79-0bdae])
+AC_PREREQ([2.68])
 AC_INIT([CryptoJS-OpenSSL-Compatibility], [1.0], [tierney@cs.nyu.edu])
 AC_CONFIG_SRCDIR([src/base64.h])
 AC_CONFIG_HEADERS([config.h])
