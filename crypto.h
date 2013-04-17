@@ -1,16 +1,19 @@
 #pragma once
 
 #include "base/memory/scoped_ptr.h"
-#include <openssl/evp.h>
 #include <string>
+#include <openssl/evp.h>
 
 namespace cryptagram {
 
+const int kSaltLen = 8;
+const int kIvLen = 32;
+
 class BlockCipher {
  public:
-  BlockCipher()
-      : encrypt_(EVP_CIPHER_CTX_new()), decrypt_(EVP_CIPHER_CTX_new()),
-        cipher_(EVP_aes_256_cbc()), nrounds_(1) {}
+  BlockCipher();
+
+  ~BlockCipher();
 
   // Takes a message to be encrypted from |input| along with a human-readable
   // |password| and applies the appropriate cryptographic transformations to
@@ -26,18 +29,19 @@ class BlockCipher {
 
  private:
   void InitEncrypt(const std::string& password);
-  void InitDecrypt(const std::string& password,
-                   const std::string& iv);
+  void InitDecrypt(const std::string& input, const std::string& password);
 
   scoped_ptr<EVP_CIPHER_CTX> encrypt_;
   scoped_ptr<EVP_CIPHER_CTX> decrypt_;
+
+  // Do not have ownership of these pointers.
+  const EVP_CIPHER* cipher_;
+  const EVP_MD* digest_;
 
   scoped_array<unsigned char> salt_;
   scoped_array<unsigned char> iv_;
 
   scoped_array<unsigned char> key_;
-
-  scoped_ptr<const EVP_CIPHER> cipher_;
 
   int nrounds_;
 };

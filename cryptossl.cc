@@ -6,6 +6,7 @@
 #include <openssl/evp.h>
 #include <openssl/aes.h>
 #include <openssl/md5.h>
+#include <openssl/rand.h>
 #include <cassert>
 #include "base64.h"
 /**
@@ -26,8 +27,7 @@ int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt, EVP
    * slower.
    */
 	const EVP_CIPHER *cipher= EVP_aes_256_cbc();
-  i = EVP_BytesToKey(cipher, EVP_sha1(), salt, key_data, key_data_len, nrounds, key, iv);
-  // i = EVP_BytesToKey(cipher, EVP_md5(), salt, key_data, key_data_len, nrounds, key, iv);
+  i = EVP_BytesToKey(cipher, EVP_md5(), salt, key_data, key_data_len, nrounds, key, iv);
   if (i != 32) {
     printf("Key size is %d bits - should be 256 bits\n", i);
     return -1;
@@ -103,8 +103,10 @@ int main(int argc, char **argv)
      integers on the stack as 64 bits of contigous salt material -
      ofcourse this only works if sizeof(int) >= 4 */
   // unsigned int salt[] = {12345, 54321};
-  unsigned char salt[8] = "\355\352foY\277\273";
+  unsigned char salt[8];
+  // = "\355\352foY\277\273";
   salt[7] = '\0';
+  RAND_bytes(salt, 8);
   unsigned char *key_data;
   int key_data_len, i;
   // char *input[] = {"a", "abcd", "this is a test", "this is a bigger test",
