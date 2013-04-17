@@ -11,8 +11,8 @@ BlockCipher::BlockCipher()
       : encrypt_(EVP_CIPHER_CTX_new()), decrypt_(EVP_CIPHER_CTX_new()),
         cipher_(EVP_aes_256_cbc()),
         digest_(EVP_md5()),
-        salt_(new unsigned char[kSaltLen]),
-        iv_(new unsigned char[kIvLen]),
+        salt_(new unsigned char[PKCS5_SALT_LEN]),
+        iv_(new unsigned char[EVP_MAX_IV_LENGTH]),
         key_(new unsigned char[EVP_MAX_KEY_LENGTH]),
         nrounds_(1) {
 }
