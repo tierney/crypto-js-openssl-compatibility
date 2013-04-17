@@ -17,3 +17,12 @@ Build instructions:
 Currently, the password is hard-coded as "Secret Passphrase." (Internally, the
 OpenSSL libraries use a key derivation function based on the PKCSv1.5 standard
 with an MD5 digest.)
+
+In Crypto-JS, one can use the basic AES API to see the C++ code is compatible.
+
+    <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
+    <script>
+        var encrypted = CryptoJS.AES.encrypt("Message", "Secret Passphrase");
+
+        var decrypted = CryptoJS.AES.decrypt(encrypted, "Secret Passphrase");
+    </script>
