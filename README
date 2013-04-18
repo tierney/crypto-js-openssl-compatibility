@@ -13,11 +13,10 @@ Build instructions:
     ./autogen.sh
     ./configure
     make
-    ./src/main "Message to encrypt"
+    ./src/main "Message to encrypt" "Password"
 
-Currently, the password is hard-coded as "Secret Passphrase." (Internally, the
-OpenSSL libraries use a key derivation function based on the PKCSv1.5 standard
-with an MD5 digest.)
+Internally, the OpenSSL libraries use a key derivation function based on the
+PKCSv1.5 standard with an MD5 digest.
 
 In Crypto-JS, one can use the basic AES API to see the C++ code is compatible.
 
