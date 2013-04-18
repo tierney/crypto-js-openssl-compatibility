@@ -27,6 +27,9 @@ class BlockCipher {
   bool Decrypt(const std::string& input, const std::string& password,
                std::string* output);
 
+  void PrintSalt() const;
+  void PrintKey() const;
+
  private:
   void InitEncrypt(const std::string& password);
   void InitDecrypt(const std::string& input, const std::string& password);

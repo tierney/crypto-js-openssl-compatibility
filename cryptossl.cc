@@ -104,7 +104,7 @@ int main(int argc, char **argv)
      ofcourse this only works if sizeof(int) >= 4 */
   // unsigned int salt[] = {12345, 54321};
   unsigned char salt[8] = "\355\352foY\277\273";
-  // RAND_bytes(salt, 8);
+  RAND_bytes(salt, 8);
   salt[7] = '\0';
   unsigned char *key_data;
   int key_data_len, i;
